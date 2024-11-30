@@ -1,0 +1,25 @@
+/.metadata/
+
+# Eclipse specific files
+.classpath
+.project
+.settings/
+
+# Maven build output
+target/
+
+# IDE specific files
+*.swp
+*~.nib
+*~.swp
+
+# Log files
+*.log
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Maven wrapper
+.mvn/
+.mvn/wrapper/
