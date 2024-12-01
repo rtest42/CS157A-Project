@@ -1,9 +1,22 @@
 package edu.sjsu.cs157a.controller;
 
-public class RentalController {
+import edu.sjsu.cs157a.dao.RentalDAO;
+import edu.sjsu.cs157a.model.Rental;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+@WebServlet("/rentals/*")
+public class RentalController extends HttpServlet {
 
 }
-
+/*
 package com.example.moviedb.controller;
 
 import com.example.moviedb.dao.RentalDAO;
@@ -128,4 +141,4 @@ public class RentalController extends HttpServlet {
         rentalDAO.deleteRental(rentalID);
         response.sendRedirect("rentals?action=list");
     }
-}
+}*/

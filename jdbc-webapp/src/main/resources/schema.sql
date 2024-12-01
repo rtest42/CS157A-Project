@@ -1,5 +1,10 @@
 BEGIN;
 
+DROP TABLE IF EXISTS Movies CASCADE;
+DROP TABLE IF EXISTS Users CASCADE;
+DROP TABLE IF EXISTS Rentals CASCADE;
+DROP TABLE IF EXISTS Reviews CASCADE;
+
 CREATE TABLE IF NOT EXISTS Movies (
 	MovieID INTEGER PRIMARY KEY AUTO_INCREMENT,
 	Title VARCHAR(255) NOT NULL,
@@ -41,4 +46,7 @@ CREATE TABLE IF NOT EXISTS Reviews (
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
+INSERT INTO Movies (Title, Director, Genre, ReleaseYear, Rating) VALUES ("a title", "a director", "a genre", 2024, 5.0);
+
+INSERT INTO USERS (FirstName, LastName, Email, Phone, Password) VALUES ("Royce", "Li", "admin@admin.com", "000-000-0000", "password");
 COMMIT;

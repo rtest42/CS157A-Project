@@ -1,9 +1,22 @@
 package edu.sjsu.cs157a.controller;
 
-public class ReviewController {
+import edu.sjsu.cs157a.dao.ReviewDAO;
+import edu.sjsu.cs157a.model.Review;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+@WebServlet("/reviews/*")
+public class ReviewController extends HttpServlet {
 
 }
-
+/*
 package com.example.moviedb.controller;
 
 import com.example.moviedb.dao.ReviewDAO;
@@ -120,4 +133,4 @@ public class ReviewController extends HttpServlet {
         reviewDAO.deleteReview(reviewID);
         response.sendRedirect("reviews?action=list");
     }
-}
+}*/

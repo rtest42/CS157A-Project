@@ -55,6 +55,31 @@ public class UserDAO {
 		return user;
 	}
 	
+	public User getUser(String email) throws ClassNotFoundException, SQLException {
+		String sql = "SELECT * FROM Users WHERE Email = ?";
+		User user = null;
+
+		Connection connection = DatabaseUtil.getConnection();
+		PreparedStatement statement = connection.prepareStatement(sql);
+
+		statement.setString(1, email);
+
+		ResultSet result = statement.executeQuery();
+
+		if (result.next()) {
+			user = new User();
+			user.setUserID(result.getInt("UserID"));
+			user.setFirstName(result.getString("FirstName"));
+			user.setLastName(result.getString("LastName"));
+			user.setEmail(result.getString("Email"));
+			user.setPhone(result.getString("Phone"));
+			user.setPassword(result.getString("Password"));
+			user.setJoinDate(result.getDate("JoinDate"));
+		}
+
+		return user;
+	}
+	
 	public ArrayList<User> getAllUsers() throws ClassNotFoundException, SQLException {
 		String sql = "SELECT * FROM Users";
 		

@@ -1,10 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app>
-    version="4.0"
-    xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-    xmlns:javaee="http://xmlns.jcp.org/xml/ns/javaee"
-    xmlns:xml="http://www.w3.org/XML/1998/namespace"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd">
-  <display-name>Archetype Created Web Application</display-name>
+<web-app
+	version="4.0"
+	xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xmlns:javaee="http://xmlns.jcp.org/xml/ns/javaee"
+	xmlns:xml="http://www.w3.org/XML/1998/namespace"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd">
+	<display-name>Archetype Created Web Application</display-name>
+	
+	<!-- Welcome File -->
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+	<!-- UserController Servlet -->
+	<servlet>
+		<servlet-name>UserController</servlet-name>
+		<servlet-class>edu.sjsu.cs157a.controller.UserController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UserController</servlet-name>
+		<url-pattern>/users/*</url-pattern>
+	</servlet-mapping>
+
+	<!-- MovieController Servlet -->
+	<servlet>
+		<servlet-name>MovieController</servlet-name>
+		<servlet-class>edu.sjsu.cs157a.controller.MovieController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MovieController</servlet-name>
+		<url-pattern>/movies/*</url-pattern>
+	</servlet-mapping>
+
+	<!-- RentalController Servlet -->
+	<servlet>
+		<servlet-name>RentalController</servlet-name>
+		<servlet-class>edu.sjsu.cs157a.controller.RentalController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>RentalController</servlet-name>
+		<url-pattern>/rentals/*</url-pattern>
+	</servlet-mapping>
+
+	<!-- ReviewController Servlet -->
+	<servlet>
+		<servlet-name>ReviewController</servlet-name>
+		<servlet-class>edu.sjsu.cs157a.controller.ReviewController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ReviewController</servlet-name>
+		<url-pattern>/reviews/*</url-pattern>
+	</servlet-mapping>
+
 </web-app>

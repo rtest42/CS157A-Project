@@ -7,8 +7,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class DatabaseInit {
-	private static final String FILE = "schema.sql";
+public class PopulateDatabase {
+	private static final String FILE = "population.txt";
 	
 	public static void main(String[] args) {
 		try {
@@ -23,7 +23,6 @@ public class DatabaseInit {
 			
 			Statement statement = connection.createStatement();
 			statement.execute(sql.toString());
-			System.out.println("Finished initializing database.");
 			
 		} catch (ClassNotFoundException | SQLException e) {
 			// TODO
