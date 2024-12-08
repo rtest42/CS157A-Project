@@ -1,7 +1,7 @@
 package edu.sjsu.cs157a.dao;
 
 import edu.sjsu.cs157a.model.Review;
-import edu.sjsu.cs157a.util.DatabaseUtil;
+import edu.sjsu.cs157a.util.JDBCUtil;
 
 import java.util.ArrayList;
 
@@ -18,7 +18,7 @@ public class ReviewDAO {
 	public void addReview(Review review) throws ClassNotFoundException, SQLException {
 		String sql = "INSERT INTO Reviews (UserID, MovieID, Rating, Comment) VALUES (?, ?, ?, ?)";
 		
-		Connection connection = DatabaseUtil.getConnection();
+		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
 		
 		statement.setInt(1, review.getUserID());
@@ -32,7 +32,7 @@ public class ReviewDAO {
 		String sql = "SELECT * FROM Reviews WHERE ReviewID = ?";
 		Review review = null;
 
-		Connection connection = DatabaseUtil.getConnection();
+		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
 		
 		statement.setInt(1, id);
@@ -50,12 +50,34 @@ public class ReviewDAO {
 
 		return review;
 	}
+	
+	public ArrayList<Review> getAllReviews() throws ClassNotFoundException, SQLException {
+		String sql = "SELECT * FROM Reviews";
+		ArrayList<Review> reviews = new ArrayList<Review>();
+
+		Connection connection = JDBCUtil.getConnection();
+		PreparedStatement statement = connection.prepareStatement(sql);
+		
+		ResultSet result = statement.executeQuery();
+
+		while (result.next()) {
+			Review review = new Review();
+			review.setReviewID(result.getInt("ReviewID"));
+			review.setUserID(result.getInt("UserID"));
+			review.setMovieID(result.getInt("MovieID"));
+			review.setRating(result.getDouble("Rating"));
+			review.setComment(result.getString("Comment"));
+			reviews.add(review);
+		}
+
+		return reviews;
+	}
 
 	public ArrayList<Review> getReviewsByMovie(int movieID) throws ClassNotFoundException, SQLException {
 		String sql = "SELECT * FROM Reviews WHERE MovieID = ?";
 		ArrayList<Review> reviews = new ArrayList<Review>();
 
-		Connection connection = DatabaseUtil.getConnection();
+		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
 		
 		statement.setInt(1, movieID);
@@ -79,7 +101,7 @@ public class ReviewDAO {
 		String sql = "SELECT * FROM Reviews WHERE UserID = ?";
 		ArrayList<Review> reviews = new ArrayList<Review>();
 
-		Connection connection = DatabaseUtil.getConnection();
+		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
 		
 		statement.setInt(1, userID);
@@ -102,7 +124,7 @@ public class ReviewDAO {
 	public void updateReview(Review review) throws ClassNotFoundException, SQLException {
 		String sql = "UPDATE Reviews SET Rating = ?, Comment = ? WHERE ReviewID = ?";
 		
-		Connection connection = DatabaseUtil.getConnection();
+		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
 		
 		statement.setDouble(1, review.getRating());
@@ -115,7 +137,7 @@ public class ReviewDAO {
 	public void deleteReview(int id) throws ClassNotFoundException, SQLException {
 		String sql = "DELETE FROM Reviews WHERE ReviewID = ?";
 		
-		Connection connection = DatabaseUtil.getConnection();
+		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
 		
 		statement.setInt(1, id);

@@ -11,7 +11,7 @@ public class Rental {
 	private boolean returned;
 	
 	public Rental() {
-		this.setReturned(false);
+		
 	}
 	
 	public Rental(int id, int movieId, int userId, Date startDate, Date returnDate) {
@@ -70,5 +70,4 @@ public class Rental {
 	public void setReturned(boolean returned) {
 		this.returned = returned;
 	}
-	
 }

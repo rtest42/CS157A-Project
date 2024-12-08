@@ -2,37 +2,23 @@ package edu.sjsu.cs157a.controller;
 
 import edu.sjsu.cs157a.dao.RentalDAO;
 import edu.sjsu.cs157a.model.Rental;
-
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 @WebServlet("/rentals/*")
 public class RentalController extends HttpServlet {
-
-}
-/*
-package com.example.moviedb.controller;
-
-import com.example.moviedb.dao.RentalDAO;
-import com.example.moviedb.model.Rental;
-
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
-
-@WebServlet("/rentals")
-public class RentalController extends HttpServlet {
+	private static final String LIST = "/list";
+	private static final String CONFIGURE = "/configure";
+	
     private RentalDAO rentalDAO;
 
     @Override
@@ -42,103 +28,94 @@ public class RentalController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+        String action = request.getPathInfo();
+        String url = "/WEB-INF/views/rentals" + action + ".jsp";
         try {
-            if ("list".equals(action)) {
-                listRentals(request, response);
-            } else if ("get".equals(action)) {
-                getRental(request, response);
-            }
+        	switch(action) {
+        	case LIST:
+        		listRentals(request, response);
+        		break;
+        	case CONFIGURE:
+        		getRental(request, response);
+        		break;
+        	}
+        	request.getRequestDispatcher(url).forward(request, response);
         } catch (SQLException e) {
             throw new ServletException(e);
-        }
+        } catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
-    private void listRentals(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
-        List<Rental> rentals = rentalDAO.getAllRentals();
+    private void listRentals(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException, ClassNotFoundException {
+    	Integer userID = (Integer) request.getSession().getAttribute("userID");
+    	ArrayList<Rental> rentals = rentalDAO.getAllRentalsFromUser(userID);
         request.setAttribute("rentals", rentals);
-        request.getRequestDispatcher("/rental-list.jsp").forward(request, response);
     }
 
-    private void getRental(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException {
-        int rentalID = Integer.parseInt(request.getParameter("rentalID"));
-        Rental rental = rentalDAO.getRentalByID(rentalID);
-        if (rental != null) {
-            request.setAttribute("rental", rental);
-            request.getRequestDispatcher("/rental-details.jsp").forward(request, response);
-        } else {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Rental not found");
-        }
+    private void getRental(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException, ClassNotFoundException {
+        int rentalID = Integer.parseInt(request.getParameter("id"));
+        Rental rental = rentalDAO.getRental(rentalID);
+        // User user = (User) request.getSession().getAttribute("user");
+		
+		request.setAttribute("rental", rental);
+        //if (rental != null) {
+        //    request.setAttribute("rental", rental);
+        //    request.getRequestDispatcher("/rental-details.jsp").forward(request, response);
+        //} else {
+        //    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Rental not found");
+        //}
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	String action = request.getPathInfo();
         try {
-            addRental(request, response);
+        	switch (action) {
+        	case "/rent":
+        		addRental(request, response);
+        		break;
+        	case "/update":
+        		updateRental(request, response);
+        		break;
+        	case "/return":
+        		returnRental(request, response);
+        		break;
+        	}
         } catch (SQLException e) {
             throw new ServletException(e);
+        } catch (ClassNotFoundException | ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+
+    private void addRental(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ClassNotFoundException {
+    	int movieID = Integer.parseInt(request.getParameter("movieID"));
+    	int userID = (Integer) request.getSession().getAttribute("userID");
+        rentalDAO.addRental(movieID, userID);
+        response.sendRedirect(request.getContextPath() + "/rentals/list");
+    }
+
+    private void updateRental(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ClassNotFoundException, ParseException {
+    	int rentalID = Integer.parseInt(request.getParameter("rentalID"));
+        String newReturnDateStr = request.getParameter("newReturnDate");
+        Rental rental = rentalDAO.getRental(rentalID);
+        if (newReturnDateStr != null && !newReturnDateStr.isEmpty()) {
+            Date newReturnDate = Date.valueOf(newReturnDateStr);
+            rental.setReturnDate(newReturnDate);
         }
-    }
-
-    private void addRental(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        int movieID = Integer.parseInt(request.getParameter("movieID"));
-        int userID = Integer.parseInt(request.getParameter("userID"));
-        String startDate = request.getParameter("startDate");
-        String returnDate = request.getParameter("returnDate");
-        String status = request.getParameter("status");
-
-        Rental newRental = new Rental();
-        newRental.setMovieID(movieID);
-        newRental.setUserID(userID);
-        newRental.setStartDate(startDate);
-        newRental.setReturnDate(returnDate);
-        newRental.setStatus(status);
-
-        rentalDAO.addRental(newRental);
-        response.sendRedirect("rentals?action=list");
-    }
-
-    @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            updateRental(request, response);
-        } catch (SQLException e) {
-            throw new ServletException(e);
-        }
-    }
-
-    private void updateRental(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        int rentalID = Integer.parseInt(request.getParameter("rentalID"));
-        int movieID = Integer.parseInt(request.getParameter("movieID"));
-        int userID = Integer.parseInt(request.getParameter("userID"));
-        String startDate = request.getParameter("startDate");
-        String returnDate = request.getParameter("returnDate");
-        String status = request.getParameter("status");
-
-        Rental rental = new Rental();
-        rental.setRentalID(rentalID);
-        rental.setMovieID(movieID);
-        rental.setUserID(userID);
-        rental.setStartDate(startDate);
-        rental.setReturnDate(returnDate);
-        rental.setStatus(status);
 
         rentalDAO.updateRental(rental);
-        response.sendRedirect("rentals?action=list");
+        response.sendRedirect(request.getContextPath() + "/rentals/list");
     }
-
-    @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            deleteRental(request, response);
-        } catch (SQLException e) {
-            throw new ServletException(e);
-        }
+    
+    private void returnRental(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ClassNotFoundException, ParseException {
+    	int rentalID = Integer.parseInt(request.getParameter("rentalID"));
+        Rental rental = rentalDAO.getRental(rentalID);
+        rental.setReturned(true);
+        rentalDAO.updateRental(rental);
+        response.sendRedirect(request.getContextPath() + "/rentals/list");
     }
-
-    private void deleteRental(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        int rentalID = Integer.parseInt(request.getParameter("rentalID"));
-        rentalDAO.deleteRental(rentalID);
-        response.sendRedirect("rentals?action=list");
-    }
-}*/
+}

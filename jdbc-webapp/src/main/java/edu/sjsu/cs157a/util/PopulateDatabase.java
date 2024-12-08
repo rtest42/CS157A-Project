@@ -8,19 +8,19 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class PopulateDatabase {
-	private static final String FILE = "population.txt";
+	private static final String FILE = "population.csv";
 	
 	public static void main(String[] args) {
 		try {
-			Connection connection = DatabaseUtil.getConnection();
+			Connection connection = JDBCUtil.getConnection();
 			
 			StringBuilder sql = new StringBuilder();
-			BufferedReader reader = new BufferedReader(new FileReader(FILE));
-			String line;
-			while ((line = reader.readLine()) != null) {
-				sql.append(line).append("\n");
+			try (BufferedReader reader = new BufferedReader(new FileReader(FILE))) {
+				String line;
+				while ((line = reader.readLine()) != null) {
+					sql.append(line).append("\n");
+				}
 			}
-			
 			Statement statement = connection.createStatement();
 			statement.execute(sql.toString());
 			

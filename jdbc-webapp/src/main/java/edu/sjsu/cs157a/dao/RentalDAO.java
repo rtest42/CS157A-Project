@@ -1,7 +1,7 @@
 package edu.sjsu.cs157a.dao;
 
 import edu.sjsu.cs157a.model.Rental;
-import edu.sjsu.cs157a.util.DatabaseUtil;
+import edu.sjsu.cs157a.util.JDBCUtil;
 
 import java.util.ArrayList;
 
@@ -18,7 +18,7 @@ public class RentalDAO {
 	public void addRental(Rental rental) throws ClassNotFoundException, SQLException {
 		String sql = "INSERT INTO Rentals (MovieID, UserID, StartDate, ReturnDate, Returned) VALUES (?, ?, ?, ?, ?)";
 
-		Connection connection = DatabaseUtil.getConnection();
+		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
 
 		statement.setInt(1, rental.getMovieID());
@@ -28,12 +28,23 @@ public class RentalDAO {
 		statement.setBoolean(5, rental.isReturned());
 		statement.executeUpdate();
 	}
+	
+	public void addRental(int movieID, int userID) throws ClassNotFoundException, SQLException {
+		String sql = "INSERT INTO RENTALS (MovieID, UserID) VALUES (?, ?)";
+		
+		Connection connection = JDBCUtil.getConnection();
+		PreparedStatement statement = connection.prepareStatement(sql);
+		
+		statement.setInt(1, movieID);
+		statement.setInt(2, userID);
+		statement.executeUpdate();
+	}
 
 	public Rental getRental(int id) throws ClassNotFoundException, SQLException {
 		String sql = "SELECT * FROM Rentals WHERE RentalID = ?";
 		Rental rental = null;
 
-		Connection connection = DatabaseUtil.getConnection();
+		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
 
 		statement.setInt(1, id);
@@ -42,6 +53,7 @@ public class RentalDAO {
 
 		if (result.next()) {
 			rental = new Rental();
+			rental.setRentalID(result.getInt("RentalID"));
 			rental.setMovieID(result.getInt("MovieID"));
 			rental.setUserID(result.getInt("UserID"));
 			rental.setStartDate(result.getDate("StartDate"));
@@ -57,7 +69,7 @@ public class RentalDAO {
 
 		ArrayList<Rental> rentals = new ArrayList<Rental>();
 
-		Connection connection = DatabaseUtil.getConnection();
+		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
 
 		statement.setInt(1, userID);
@@ -77,13 +89,37 @@ public class RentalDAO {
 
 		return rentals;
 	}
+	
+	public ArrayList<Rental> getAllRentals() throws ClassNotFoundException, SQLException {
+		String sql = "SELECT * FROM Rentals";
+
+		ArrayList<Rental> rentals = new ArrayList<Rental>();
+
+		Connection connection = JDBCUtil.getConnection();
+		PreparedStatement statement = connection.prepareStatement(sql);
+
+		ResultSet resultSet = statement.executeQuery();
+
+		while (resultSet.next()) {
+			Rental rental = new Rental();
+			rental.setRentalID(resultSet.getInt("RentalID"));
+			rental.setMovieID(resultSet.getInt("MovieID"));
+			rental.setUserID(resultSet.getInt("UserID"));
+			rental.setStartDate(resultSet.getDate("StartDate"));
+			rental.setReturnDate(resultSet.getDate("ReturnDate"));
+			rental.setReturned(resultSet.getBoolean("Returned"));
+			rentals.add(rental);
+		}
+
+		return rentals;
+	}
 
 	public ArrayList<Rental> getAllRentalsByMovie(int movieID) throws ClassNotFoundException, SQLException {
 		String sql = "SELECT * FROM Rentals WHERE MovieID = ?";
 
 		ArrayList<Rental> rentals = new ArrayList<Rental>();
 
-		Connection connection = DatabaseUtil.getConnection();
+		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
 
 		statement.setInt(1, movieID);
@@ -105,20 +141,21 @@ public class RentalDAO {
 	}
 
 	public void updateRental(Rental rental) throws ClassNotFoundException, SQLException {
-		String sql = "UPDATE Rental SET ReturnDate = ?, Returned = ? WHERE RentalID = ?";
+		String sql = "UPDATE Rentals SET ReturnDate = ?, Returned = ? WHERE RentalID = ?";
 
-		Connection connection = DatabaseUtil.getConnection();
+		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
 
 		statement.setDate(1, rental.getReturnDate());
 		statement.setBoolean(2, rental.isReturned());
+		statement.setInt(3, rental.getRentalID());
 		statement.executeUpdate();
 	}
 
 	public void deleteRental(int id) throws ClassNotFoundException, SQLException {
 		String sql = "DELETE FROM Rentals WHERE RentalID = ?";
 
-		Connection connection = DatabaseUtil.getConnection();
+		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
 
 		statement.setInt(1, id);

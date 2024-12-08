@@ -23,3 +23,6 @@ Thumbs.db
 # Maven wrapper
 .mvn/
 .mvn/wrapper/
+
+# Tomcat Server
+/Servers/*

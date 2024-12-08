@@ -3,17 +3,20 @@ package edu.sjsu.cs157a.controller;
 import edu.sjsu.cs157a.dao.UserDAO;
 import edu.sjsu.cs157a.model.User;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 @WebServlet("/users/*")
 public class UserController extends HttpServlet {
+	private static final String LOGIN = "/login";
+    private static final String REGISTER = "/register";
+    private static final String PROFILE = "/profile";
+
 	private UserDAO userDAO;
 
 	@Override
@@ -25,40 +28,16 @@ public class UserController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String action = request.getPathInfo();
-		try {
-			switch(action) {
-			case "/profile":
-				getUser(request, response);
-				break;
-			case "/list":
-				listUsers(request, response);
-				break;
-			}
-		} catch (SQLException e) {
-			throw new ServletException(e);
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	private void listUsers(HttpServletRequest request, HttpServletResponse response)
-			throws ClassNotFoundException, SQLException, IOException, ServletException {
-		ArrayList<User> users = userDAO.getAllUsers();
-		request.setAttribute("users", users);
-		request.getRequestDispatcher("/users/list.jsp").forward(request, response);
-	}
-
-	private void getUser(HttpServletRequest request, HttpServletResponse response)
-			throws ClassNotFoundException, SQLException, IOException, ServletException {
-		int userID = Integer.parseInt(request.getParameter("userID"));
-		User user = userDAO.getUser(userID);
-
-		if (user != null) {
-			request.setAttribute("user", user);
-			request.getRequestDispatcher("/user/profile.jsp").forward(request, response);
-		} else {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND, "User not found");
+		switch (action) {
+		case LOGIN:
+		case REGISTER:
+		case PROFILE:
+			String url = "/WEB-INF/views/users" + action + ".jsp";
+			request.getRequestDispatcher(url).forward(request, response);
+			break;
+		default:
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "The requested resource is not available.");
+            break;
 		}
 	}
 
@@ -70,10 +49,23 @@ public class UserController extends HttpServlet {
 			switch (path) {
 			case "/register":
 				registerUser(request, response);
+				response.sendRedirect(request.getContextPath() + "/users/login");
 				break;
 			case "/login":
-				loginUser(request, response);
+				loginUser(request, response);	
 				break;
+			case "/update":
+				updateUser(request, response);
+				break;
+			case "/logout":
+				logoutUser(request, response);
+				break;
+			case "/delete":
+				deleteUser(request, response);
+				break;
+			default:
+	            response.sendError(HttpServletResponse.SC_NOT_FOUND, "The requested resource is not available.");
+	            break;
 			}
 		} catch (SQLException e) {
 			throw new ServletException(e);
@@ -98,52 +90,35 @@ public class UserController extends HttpServlet {
 		newUser.setPhone(phone);
 		newUser.setPassword(password);
 		userDAO.addUser(newUser);
-
-		response.sendRedirect("/users/login.jsp");
+		
+		System.out.println("User registered!");
 	}
 
-	private void loginUser(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+	private void loginUser(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ClassNotFoundException {
 		String email = request.getParameter("email");
 		String password = request.getParameter("password");
 		
-		try {
-			User user = userDAO.getUser(email);
+		User user = userDAO.getUser(email);
+		// return user != null && user.getPassword().equals(password);
 			if (user != null && user.getPassword().equals(password)) {
-				request.getSession().setAttribute("loggedInUser", user);
-				response.sendRedirect("/movies/dashboard.jsp");
+				request.getSession().setAttribute("userID", user.getUserID());
+				System.out.println("User logged in!");
+				response.sendRedirect(request.getContextPath() + "/movies/dashboard");
 			} else {
-				response.sendRedirect("/user/login.jsp?error=Invalid email or password");
-			}
-		} catch (ClassNotFoundException e) { 
-			// TODO
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	protected void doPut(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		try {
-			updateUser(request, response);
-		} catch (SQLException e) {
-			throw new ServletException(e);
-		} catch (ClassNotFoundException e) {
-			// TODO
-			e.printStackTrace();
-		}
+				response.sendRedirect(request.getContextPath() + "/user/login");
+			} 
 	}
 
 	private void updateUser(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, IOException, ClassNotFoundException {
-		int userID = Integer.parseInt(request.getParameter("userID"));
 		String firstName = request.getParameter("firstName");
 		String lastName = request.getParameter("lastName");
 		String email = request.getParameter("email");
 		String phone = request.getParameter("phone");
 		String password = request.getParameter("password");
 
-		User user = new User();
-		user.setUserID(userID);
+		Integer userID = (Integer) request.getSession().getAttribute("userID");
+		User user = userDAO.getUser(userID);
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
 		user.setEmail(email);
@@ -151,26 +126,23 @@ public class UserController extends HttpServlet {
 		user.setPassword(password);
 
 		userDAO.updateUser(user);
-		response.sendRedirect("/users/profile.jsp");
+		System.out.println("User updated profile!");
+		response.sendRedirect(request.getContextPath() + "/users" + PROFILE);
 	}
-
-	@Override
-	protected void doDelete(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		try {
-			deleteUser(request, response);
-		} catch (SQLException e) {
-			throw new ServletException(e);
-		} catch (ClassNotFoundException e) {
-			// TODO auto-generated
-			e.printStackTrace();
-		}
+	
+	private void logoutUser(HttpServletRequest request, HttpServletResponse response)
+			throws SQLException, IOException, ClassNotFoundException {
+		request.getSession().invalidate();
+		System.out.println("Logged out user!");
+		response.sendRedirect(request.getContextPath() + "/users" + LOGIN);
 	}
 
 	private void deleteUser(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, IOException, ClassNotFoundException {
-		int userID = Integer.parseInt(request.getParameter("userID"));
+		Integer userID = (Integer) request.getSession().getAttribute("userID");
 		userDAO.deleteUser(userID);
-		response.sendRedirect("/users/login.jsp");
+		request.getSession().invalidate();
+		System.out.println("Deleted user!");
+		response.sendRedirect(request.getContextPath() + "/users" + LOGIN);
 	}
 }
