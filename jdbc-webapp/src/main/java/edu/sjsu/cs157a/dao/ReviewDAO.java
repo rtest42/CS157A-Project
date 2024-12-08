@@ -6,6 +6,7 @@ import edu.sjsu.cs157a.util.JDBCUtil;
 import java.util.ArrayList;
 
 import java.sql.Connection;
+import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,7 +16,7 @@ public class ReviewDAO {
 		
 	}
 
-	public void addReview(Review review) throws ClassNotFoundException, SQLException {
+	public long addReview(Review review) throws ClassNotFoundException, SQLException {
 		String sql = "INSERT INTO Reviews (UserID, MovieID, Rating, Comment) VALUES (?, ?, ?, ?)";
 		
 		Connection connection = JDBCUtil.getConnection();
@@ -26,6 +27,15 @@ public class ReviewDAO {
 		statement.setDouble(3, review.getRating());
 		statement.setString(4, review.getComment());
 		statement.executeUpdate();
+		
+		Statement s = connection.createStatement();
+		ResultSet rs = s.executeQuery("SELECT LAST_INSERT_ID()");
+		if (rs.next()) {
+			long primaryKey = rs.getLong(1);
+			return primaryKey;
+		}
+		
+		return 0;
 	}
 
 	public Review getReview(int id) throws ClassNotFoundException, SQLException {

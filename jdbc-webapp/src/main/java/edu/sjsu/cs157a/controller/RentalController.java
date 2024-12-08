@@ -1,7 +1,10 @@
 package edu.sjsu.cs157a.controller;
 
 import edu.sjsu.cs157a.dao.RentalDAO;
+import edu.sjsu.cs157a.dao.MovieDAO;
 import edu.sjsu.cs157a.model.Rental;
+import edu.sjsu.cs157a.model.Movie;
+import edu.sjsu.cs157a.model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -11,7 +14,6 @@ import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 @WebServlet("/rentals/*")
@@ -20,10 +22,12 @@ public class RentalController extends HttpServlet {
 	private static final String CONFIGURE = "/configure";
 	
     private RentalDAO rentalDAO;
+    private MovieDAO movieDAO;
 
     @Override
     public void init() {
         rentalDAO = new RentalDAO();
+        movieDAO = new MovieDAO();
     }
 
     @Override
@@ -49,23 +53,23 @@ public class RentalController extends HttpServlet {
     }
 
     private void listRentals(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException, ClassNotFoundException {
-    	Integer userID = (Integer) request.getSession().getAttribute("userID");
-    	ArrayList<Rental> rentals = rentalDAO.getAllRentalsFromUser(userID);
+    	User user = (User) request.getSession().getAttribute("user");
+    	ArrayList<Rental> rentals = rentalDAO.getAllRentalsFromUser(user.getUserID());
+    	Movie[] movies = new Movie[rentals.size()];
+    	for (int i = 0; i < movies.length; ++i) {
+    		movies[i] = movieDAO.getMovie(rentals.get(i).getMovieID());
+    	}
         request.setAttribute("rentals", rentals);
+        request.setAttribute("movies", movies);
     }
 
     private void getRental(HttpServletRequest request, HttpServletResponse response) throws SQLException, ServletException, IOException, ClassNotFoundException {
         int rentalID = Integer.parseInt(request.getParameter("id"));
         Rental rental = rentalDAO.getRental(rentalID);
-        // User user = (User) request.getSession().getAttribute("user");
-		
+        Movie movie = movieDAO.getMovie(rental.getMovieID());
 		request.setAttribute("rental", rental);
-        //if (rental != null) {
-        //    request.setAttribute("rental", rental);
-        //    request.getRequestDispatcher("/rental-details.jsp").forward(request, response);
-        //} else {
-        //    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Rental not found");
-        //}
+		request.setAttribute("movie", movie);
+		
     }
 
     @Override
@@ -93,8 +97,8 @@ public class RentalController extends HttpServlet {
 
     private void addRental(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ClassNotFoundException {
     	int movieID = Integer.parseInt(request.getParameter("movieID"));
-    	int userID = (Integer) request.getSession().getAttribute("userID");
-        rentalDAO.addRental(movieID, userID);
+    	User user = (User) request.getSession().getAttribute("user");
+        rentalDAO.addRental(movieID, user.getUserID());
         response.sendRedirect(request.getContextPath() + "/rentals/list");
     }
 

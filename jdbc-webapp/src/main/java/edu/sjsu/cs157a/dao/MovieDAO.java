@@ -9,13 +9,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class MovieDAO {
 	public MovieDAO() {
 
 	}
 
-	public void addMovie(Movie movie) throws ClassNotFoundException, SQLException {
+	public long addMovie(Movie movie) throws ClassNotFoundException, SQLException {
 		String sql = "INSERT INTO Movies (Title, Director, Genre, ReleaseYear, Rating, Description) VALUES (?, ?, ?, ?, ?, ?)";
 
 		Connection connection = JDBCUtil.getConnection();
@@ -28,6 +29,15 @@ public class MovieDAO {
 		statement.setDouble(5, movie.getRating());
 		statement.setString(6, movie.getDescription());
 		statement.executeUpdate();
+		
+		Statement s = connection.createStatement();
+		ResultSet rs = s.executeQuery("SELECT LAST_INSERT_ID()");
+		if (rs.next()) {
+			long primaryKey = rs.getLong(1);
+			return primaryKey;
+		}
+		
+		return 0;
 	}
 
 	public Movie getMovie(int id) throws ClassNotFoundException, SQLException {
@@ -84,7 +94,24 @@ public class MovieDAO {
 		int rowCount = 0;
 		while (result.next())
 			++rowCount;
-		return rowCount > 0;
+		
+		if (rowCount > 0) {
+			sql = "SELECT * FROM Reviews WHERE UserID = ? AND MovieID = ?";
+			
+			statement = connection.prepareStatement(sql);
+			statement.setInt(1, userID);
+			statement.setInt(2, movieID);
+			
+			result = statement.executeQuery();
+			rowCount = 0;
+			
+			while (result.next())
+				++rowCount;
+			
+			return rowCount == 0;
+		}
+		
+		return false;
 	}
 	
 	public ArrayList<Movie> getAllMovies() throws ClassNotFoundException, SQLException {

@@ -4,6 +4,7 @@ import edu.sjsu.cs157a.model.User;
 import edu.sjsu.cs157a.util.JDBCUtil;
 
 import java.sql.Connection;
+import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,8 +14,8 @@ public class UserDAO {
 
 	}
 
-	public void addUser(User user) throws ClassNotFoundException, SQLException {
-		String sql = "INSERT INTO Users (FirstName, LastName, Email, Phone, Password, JoinDate) VALUES (?, ?, ?, ?, ?, ?)";
+	public long addUser(User user) throws ClassNotFoundException, SQLException {
+		String sql = "INSERT INTO Users (FirstName, LastName, Email, Phone, Password) VALUES (?, ?, ?, ?, ?)";
 
 		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
@@ -24,8 +25,16 @@ public class UserDAO {
 		statement.setString(3, user.getEmail());
 		statement.setString(4, user.getPhone());
 		statement.setString(5, user.getPassword());
-		statement.setDate(6, user.getJoinDate());
 		statement.executeUpdate();
+		
+		Statement s = connection.createStatement();
+		ResultSet rs = s.executeQuery("SELECT LAST_INSERT_ID()");
+		if (rs.next()) {
+			long primaryKey = rs.getLong(1);
+			return primaryKey;
+		}
+		
+		return 0;
 	}
 
 	public User getUser(int id) throws ClassNotFoundException, SQLException {

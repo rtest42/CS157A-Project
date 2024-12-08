@@ -2,6 +2,7 @@ package edu.sjsu.cs157a.controller;
 
 import edu.sjsu.cs157a.dao.MovieDAO;
 import edu.sjsu.cs157a.model.Movie;
+import edu.sjsu.cs157a.model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -53,13 +54,17 @@ public class MovieController extends HttpServlet {
 	private void getMovie(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, ServletException, IOException, ClassNotFoundException {
 		int movieID = Integer.parseInt(request.getParameter("id"));
-		Integer userID = (Integer) request.getSession().getAttribute("userID");
+		User user = (User) request.getSession().getAttribute("user");
 		
 		Movie movie = movieDAO.getMovie(movieID);
 		request.setAttribute("movie", movie);
 		
-		boolean canRent = movieDAO.canRent(userID, movieID);
-		boolean canReview = movieDAO.canReview(userID, movieID);
+		boolean canRent = false;
+		boolean canReview = false;
+		if (user != null) {
+			canRent = movieDAO.canRent(user.getUserID(), movieID);
+			canReview = movieDAO.canReview(user.getUserID(), movieID);
+		}
 		request.setAttribute("canRent", canRent);
 		request.setAttribute("canReview", canReview);
 	}

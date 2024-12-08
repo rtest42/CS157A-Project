@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class RentalDAO {
 	public RentalDAO() {
@@ -29,7 +30,7 @@ public class RentalDAO {
 		statement.executeUpdate();
 	}
 	
-	public void addRental(int movieID, int userID) throws ClassNotFoundException, SQLException {
+	public long addRental(int movieID, int userID) throws ClassNotFoundException, SQLException {
 		String sql = "INSERT INTO RENTALS (MovieID, UserID) VALUES (?, ?)";
 		
 		Connection connection = JDBCUtil.getConnection();
@@ -38,6 +39,15 @@ public class RentalDAO {
 		statement.setInt(1, movieID);
 		statement.setInt(2, userID);
 		statement.executeUpdate();
+		
+		Statement s = connection.createStatement();
+		ResultSet rs = s.executeQuery("SELECT LAST_INSERT_ID()");
+		if (rs.next()) {
+			long primaryKey = rs.getLong(1);
+			return primaryKey;
+		}
+		
+		return 0;
 	}
 
 	public Rental getRental(int id) throws ClassNotFoundException, SQLException {

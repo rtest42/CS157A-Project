@@ -1,7 +1,10 @@
 package edu.sjsu.cs157a.controller;
 
 import edu.sjsu.cs157a.dao.ReviewDAO;
+import edu.sjsu.cs157a.dao.MovieDAO;
+import edu.sjsu.cs157a.model.Movie;
 import edu.sjsu.cs157a.model.Review;
+import edu.sjsu.cs157a.model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -17,10 +20,12 @@ public class ReviewController extends HttpServlet {
 	private static final String CONFIGURE = "/configure";
 	
 	private ReviewDAO reviewDAO;
+	private MovieDAO movieDAO;
 
 	@Override
 	public void init() {
 		reviewDAO = new ReviewDAO();
+		movieDAO = new MovieDAO();
 	}
 
 	@Override
@@ -50,20 +55,20 @@ public class ReviewController extends HttpServlet {
 			throws SQLException, ServletException, IOException, ClassNotFoundException {
 		ArrayList<Review> reviews = reviewDAO.getAllReviews();
 		request.setAttribute("reviews", reviews);
-		// request.getRequestDispatcher("/review/list.jsp").forward(request, response);
+		Movie[] movies = new Movie[reviews.size()];
+    	for (int i = 0; i < movies.length; ++i) {
+    		movies[i] = movieDAO.getMovie(reviews.get(i).getMovieID());
+    	}
+        request.setAttribute("movies", movies);
 	}
 
 	private void getReview(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, ServletException, IOException, ClassNotFoundException {
 		int reviewID = Integer.parseInt(request.getParameter("id"));
 		Review review = reviewDAO.getReview(reviewID);
+		Movie movie = movieDAO.getMovie(review.getMovieID());
 		request.setAttribute("review", review);
-		//if (review != null) {
-		//	request.setAttribute("review", review);
-		//request.getRequestDispatcher("/review/details.jsp").forward(request, response);
-		//} else {
-		//	response.sendError(HttpServletResponse.SC_NOT_FOUND, "Review not found");
-		//}
+		request.setAttribute("movie", movie);
 	}
 
 	@Override
@@ -93,23 +98,24 @@ public class ReviewController extends HttpServlet {
 	private void addReview(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, IOException, ClassNotFoundException {
 		int movieID = Integer.parseInt(request.getParameter("movieID"));
-		Integer userID = (Integer) request.getSession().getAttribute("userID");
+		User user = (User) request.getSession().getAttribute("user");
 
 		Review newReview = new Review();
-		newReview.setUserID(userID);
+		newReview.setUserID(user.getUserID());
 		newReview.setMovieID(movieID);
-		newReview.setRating(0);
+		// Default values
+		newReview.setRating(1.0);
 		newReview.setComment("Type your comment here...");
 
-		reviewDAO.addReview(newReview);
-		request.setAttribute("review", newReview);
-		response.sendRedirect(request.getContextPath() + "/reviews/list");
+		long primaryKey = reviewDAO.addReview(newReview);
+		// request.setAttribute("review", newReview);
+		response.sendRedirect(request.getContextPath() + "/reviews/configure?id=" + primaryKey);
 	}
 
 	private void updateReview(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, IOException, ClassNotFoundException {
 		int reviewID = Integer.parseInt(request.getParameter("reviewID"));
-		int rating = Integer.parseInt(request.getParameter("rating"));
+		double rating = Double.parseDouble(request.getParameter("rating"));
 		String comment = request.getParameter("comment");
 
 		Review review = reviewDAO.getReview(reviewID);

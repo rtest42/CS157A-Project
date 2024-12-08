@@ -10,9 +10,8 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 
-	<name>jdbc-webapp Maven Webapp</name>
-	<!-- FIXME change it to the project's website -->
-	<!-- <url>http://www.example.com</url> -->
+	<name>jdbc-webapp</name>
+	<url>https://github.com/rtest42/CS157A-Project</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -55,9 +54,9 @@
 			<version>3.0.1</version>
 		</dependency>
 		<dependency>
-		    <groupId>jakarta.el</groupId>
-		    <artifactId>jakarta.el-api</artifactId>
-		    <version>6.0.1</version>
+			<groupId>jakarta.el</groupId>
+			<artifactId>jakarta.el-api</artifactId>
+			<version>6.0.1</version>
 		</dependency>
 	</dependencies>
 

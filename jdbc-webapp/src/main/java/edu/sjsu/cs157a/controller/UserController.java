@@ -2,7 +2,6 @@ package edu.sjsu.cs157a.controller;
 
 import edu.sjsu.cs157a.dao.UserDAO;
 import edu.sjsu.cs157a.model.User;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,9 +12,14 @@ import java.sql.SQLException;
 
 @WebServlet("/users/*")
 public class UserController extends HttpServlet {
+	private static final String USERS = "/users";
 	private static final String LOGIN = "/login";
+	private static final String LOGOUT = "/logout";
     private static final String REGISTER = "/register";
     private static final String PROFILE = "/profile";
+    private static final String EDIT = "/edit";
+    private static final String UPDATE = "/update";
+    private static final String DELETE = "/delete";
 
 	private UserDAO userDAO;
 
@@ -32,7 +36,8 @@ public class UserController extends HttpServlet {
 		case LOGIN:
 		case REGISTER:
 		case PROFILE:
-			String url = "/WEB-INF/views/users" + action + ".jsp";
+		case EDIT:
+			String url = "/WEB-INF/views" + USERS + action + ".jsp";
 			request.getRequestDispatcher(url).forward(request, response);
 			break;
 		default:
@@ -47,20 +52,19 @@ public class UserController extends HttpServlet {
 		String path = request.getPathInfo();
 		try {
 			switch (path) {
-			case "/register":
+			case REGISTER:
 				registerUser(request, response);
-				response.sendRedirect(request.getContextPath() + "/users/login");
 				break;
-			case "/login":
+			case LOGIN:
 				loginUser(request, response);	
 				break;
-			case "/update":
+			case UPDATE:
 				updateUser(request, response);
 				break;
-			case "/logout":
+			case LOGOUT:
 				logoutUser(request, response);
 				break;
-			case "/delete":
+			case DELETE:
 				deleteUser(request, response);
 				break;
 			default:
@@ -92,6 +96,7 @@ public class UserController extends HttpServlet {
 		userDAO.addUser(newUser);
 		
 		System.out.println("User registered!");
+		response.sendRedirect(request.getContextPath() + USERS + LOGIN);
 	}
 
 	private void loginUser(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ClassNotFoundException {
@@ -99,14 +104,14 @@ public class UserController extends HttpServlet {
 		String password = request.getParameter("password");
 		
 		User user = userDAO.getUser(email);
-		// return user != null && user.getPassword().equals(password);
-			if (user != null && user.getPassword().equals(password)) {
-				request.getSession().setAttribute("userID", user.getUserID());
-				System.out.println("User logged in!");
-				response.sendRedirect(request.getContextPath() + "/movies/dashboard");
-			} else {
-				response.sendRedirect(request.getContextPath() + "/user/login");
-			} 
+		if (user != null && user.getPassword().equals(password)) {
+			request.getSession().setAttribute("user", user);
+			System.out.println("User logged in!");
+			response.sendRedirect(request.getContextPath() + "/movies/dashboard");
+		} else {
+			System.out.println("Failed attempt!");
+			response.sendRedirect(request.getContextPath() + USERS + LOGIN + "?err=true");
+		}
 	}
 
 	private void updateUser(HttpServletRequest request, HttpServletResponse response)
@@ -117,8 +122,7 @@ public class UserController extends HttpServlet {
 		String phone = request.getParameter("phone");
 		String password = request.getParameter("password");
 
-		Integer userID = (Integer) request.getSession().getAttribute("userID");
-		User user = userDAO.getUser(userID);
+		User user = (User) request.getSession().getAttribute("user");
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
 		user.setEmail(email);
@@ -127,22 +131,22 @@ public class UserController extends HttpServlet {
 
 		userDAO.updateUser(user);
 		System.out.println("User updated profile!");
-		response.sendRedirect(request.getContextPath() + "/users" + PROFILE);
+		response.sendRedirect(request.getContextPath() + USERS + PROFILE);
 	}
 	
 	private void logoutUser(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, IOException, ClassNotFoundException {
 		request.getSession().invalidate();
 		System.out.println("Logged out user!");
-		response.sendRedirect(request.getContextPath() + "/users" + LOGIN);
+		response.sendRedirect(request.getContextPath() + USERS + LOGIN);
 	}
 
 	private void deleteUser(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, IOException, ClassNotFoundException {
-		Integer userID = (Integer) request.getSession().getAttribute("userID");
-		userDAO.deleteUser(userID);
+		User user = (User) request.getSession().getAttribute("user");
+		userDAO.deleteUser(user.getUserID());
 		request.getSession().invalidate();
 		System.out.println("Deleted user!");
-		response.sendRedirect(request.getContextPath() + "/users" + LOGIN);
+		response.sendRedirect(request.getContextPath() + USERS + LOGIN);
 	}
 }
