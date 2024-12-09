@@ -13,4 +13,9 @@ public class JDBCUtil {
     	Class.forName("com.mysql.cj.jdbc.Driver");
         return DriverManager.getConnection(URL, USERNAME, PASSWORD);
     }
+    
+    public static Connection getConnection(String url) throws ClassNotFoundException, SQLException {
+    	Class.forName("com.mysql.cj.jdbc.Driver");
+        return DriverManager.getConnection(url, USERNAME, PASSWORD);
+    }
 }

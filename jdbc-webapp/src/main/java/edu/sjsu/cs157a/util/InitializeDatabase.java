@@ -12,7 +12,7 @@ public class InitializeDatabase {
     private static final String FILE = "schema.sql";
 
     public static void main(String[] args) {
-        try (Connection connection = JDBCUtil.getConnection()) {
+        try (Connection connection = JDBCUtil.getConnection("jdbc:mysql://localhost:3306/")) {
             // Load schema.sql from resources
             InputStream inputStream = InitializeDatabase.class.getClassLoader().getResourceAsStream(FILE);
             if (inputStream == null) {

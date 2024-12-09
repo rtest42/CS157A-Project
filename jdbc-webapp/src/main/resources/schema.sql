@@ -1,5 +1,8 @@
 BEGIN;
 
+CREATE DATABASE IF NOT EXISTS `jdbc-webapp`;
+USE `jdbc-webapp`;
+
 DROP TABLE IF EXISTS `Reviews`;
 DROP TABLE IF EXISTS `Rentals`;
 DROP TABLE IF EXISTS `Users`;
