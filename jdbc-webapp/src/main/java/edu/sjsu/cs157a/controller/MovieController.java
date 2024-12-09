@@ -1,6 +1,9 @@
 package edu.sjsu.cs157a.controller;
 
 import edu.sjsu.cs157a.dao.MovieDAO;
+import edu.sjsu.cs157a.dao.ReviewDAO;
+import edu.sjsu.cs157a.dao.UserDAO;
+import edu.sjsu.cs157a.model.Review;
 import edu.sjsu.cs157a.model.Movie;
 import edu.sjsu.cs157a.model.User;
 import jakarta.servlet.ServletException;
@@ -18,10 +21,14 @@ public class MovieController extends HttpServlet {
 	private static final String DETAILS = "/details";
 	
 	private MovieDAO movieDAO;
+	private ReviewDAO reviewDAO;
+	private UserDAO userDAO;
 
 	@Override
 	public void init() {
 		movieDAO = new MovieDAO();
+		reviewDAO = new ReviewDAO();
+		userDAO = new UserDAO();
 	}
 
 	@Override
@@ -67,5 +74,15 @@ public class MovieController extends HttpServlet {
 		}
 		request.setAttribute("canRent", canRent);
 		request.setAttribute("canReview", canReview);
+		
+		ArrayList<Review> reviews = reviewDAO.getReviewsByMovie(movieID);
+		request.setAttribute("reviews", reviews);
+		
+		User[] users = new User[reviews.size()];
+		for (int i = 0; i < users.length; ++i) {
+			users[i] = userDAO.getUser(reviews.get(i).getUserID());
+		}
+		
+		request.setAttribute("users", users);
 	}
 }

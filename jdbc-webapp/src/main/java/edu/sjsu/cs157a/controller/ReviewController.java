@@ -53,7 +53,8 @@ public class ReviewController extends HttpServlet {
 
 	private void listReviews(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, ServletException, IOException, ClassNotFoundException {
-		ArrayList<Review> reviews = reviewDAO.getAllReviews();
+		User user = (User) request.getSession().getAttribute("user");
+		ArrayList<Review> reviews = reviewDAO.getReviewsFromUser(user.getUserID());
 		request.setAttribute("reviews", reviews);
 		Movie[] movies = new Movie[reviews.size()];
     	for (int i = 0; i < movies.length; ++i) {

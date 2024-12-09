@@ -69,7 +69,6 @@ public class RentalController extends HttpServlet {
         Movie movie = movieDAO.getMovie(rental.getMovieID());
 		request.setAttribute("rental", rental);
 		request.setAttribute("movie", movie);
-		
     }
 
     @Override

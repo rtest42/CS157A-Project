@@ -17,9 +17,24 @@
 				<div class="card p-4 shadow-lg">
 					<h1 class="text-center mb-4">Sign In</h1>
 					<!-- Display error message if login failed -->
-                    <c:if test="${param.err == 'true'}">
+                    <c:if test="${param.status == 'error'}">
                         <div class="alert alert-danger" role="alert">
                         	Invalid email or password.
+                        </div>
+                    </c:if>
+                    <c:if test="${param.status == 'registered'}">
+                        <div class="alert alert-success" role="alert">
+                        	Successfully registered an account!
+                        </div>
+                    </c:if>
+                    <c:if test="${param.status == 'logout'}">
+                        <div class="alert alert-success" role="alert">
+                        	Logout successful.
+                        </div>
+                    </c:if>
+                    <c:if test="${param.status == 'deleted'}">
+                        <div class="alert alert-danger" role="alert">
+                        	Deleted user successfully!
                         </div>
                     </c:if>
 					<form action="${pageContext.request.contextPath}/users/login" method="post">

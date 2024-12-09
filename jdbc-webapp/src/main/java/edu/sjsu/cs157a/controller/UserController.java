@@ -86,6 +86,13 @@ public class UserController extends HttpServlet {
 		String email = request.getParameter("email");
 		String phone = request.getParameter("phone");
 		String password = request.getParameter("password");
+		
+		User user = userDAO.getUser(email);
+		if (user != null) {
+			System.out.println("Email already exists!");
+			response.sendRedirect(request.getContextPath() + USERS + REGISTER + "?status=error");
+			return;
+		}
 
 		User newUser = new User();
 		newUser.setFirstName(firstName);
@@ -96,7 +103,7 @@ public class UserController extends HttpServlet {
 		userDAO.addUser(newUser);
 		
 		System.out.println("User registered!");
-		response.sendRedirect(request.getContextPath() + USERS + LOGIN);
+		response.sendRedirect(request.getContextPath() + USERS + LOGIN + "?status=registered");
 	}
 
 	private void loginUser(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ClassNotFoundException {
@@ -110,7 +117,7 @@ public class UserController extends HttpServlet {
 			response.sendRedirect(request.getContextPath() + "/movies/dashboard");
 		} else {
 			System.out.println("Failed attempt!");
-			response.sendRedirect(request.getContextPath() + USERS + LOGIN + "?err=true");
+			response.sendRedirect(request.getContextPath() + USERS + LOGIN + "?status=error");
 		}
 	}
 
@@ -138,7 +145,7 @@ public class UserController extends HttpServlet {
 			throws SQLException, IOException, ClassNotFoundException {
 		request.getSession().invalidate();
 		System.out.println("Logged out user!");
-		response.sendRedirect(request.getContextPath() + USERS + LOGIN);
+		response.sendRedirect(request.getContextPath() + USERS + LOGIN + "?status=logout");
 	}
 
 	private void deleteUser(HttpServletRequest request, HttpServletResponse response)
@@ -147,6 +154,6 @@ public class UserController extends HttpServlet {
 		userDAO.deleteUser(user.getUserID());
 		request.getSession().invalidate();
 		System.out.println("Deleted user!");
-		response.sendRedirect(request.getContextPath() + USERS + LOGIN);
+		response.sendRedirect(request.getContextPath() + USERS + LOGIN + "?status=deleted");
 	}
 }

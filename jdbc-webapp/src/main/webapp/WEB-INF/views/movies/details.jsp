@@ -7,8 +7,6 @@
 <title>Movie Details</title>
 <!-- Bootstrap CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-<!-- Custom CSS -->
-<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/styles.css">
 </head>
 <body class="bg-light">
 
@@ -18,6 +16,7 @@
         <!-- Movie Details -->
         <div class="row mb-4">
             <div class="col-12">
+            	<p><strong>Title:</strong> ${movie.title}</p>
                 <p><strong>Director:</strong> ${movie.director}</p>
                 <p><strong>Genre:</strong> ${movie.genre}</p>
                 <p><strong>Release Year:</strong> ${movie.releaseYear}</p>
@@ -57,7 +56,27 @@
                 </form>
             </div>
         </div>
-
+		<!-- Reviews Section -->
+        <div class="row mb-4 py-5">
+            <div class="col-12">
+                <h2 class="mb-4">Reviews</h2>
+                <c:if test="${empty reviews}">
+                    <p class="text-muted">No reviews available for this movie.</p>
+                </c:if>
+                <c:forEach var="review" items="${reviews}" varStatus="status">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title mb-1">
+                                ${users[status.index].firstName} ${users[status.index].lastName} 
+                                <small class="text-muted">(Joined: ${users[status.index].joinDate})</small>
+                            </h5>
+                            <p class="card-text mb-1"><strong>Rating:</strong> ${review.rating}</p>
+                            <p class="card-text">${review.comment}</p>
+                        </div>
+                    </div>
+                </c:forEach>
+            </div>
+        </div>
     </div>
 
 </body>

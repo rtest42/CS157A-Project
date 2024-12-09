@@ -1,3 +1,4 @@
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +15,13 @@
 			<div class="col-md-6">
 				<!-- Register Box -->
 				<div class="card p-4 shadow-lg">
-					<h1 class="text-center mb-4">Register</h1>
+					<h1 class="text-center mb-4">Sign Up</h1>
+					<!-- Display error message if register failed -->
+                    <c:if test="${param.status == 'error'}">
+                        <div class="alert alert-danger" role="alert">
+                        	Email already exists.
+                        </div>
+                    </c:if>
 					<form action="${pageContext.request.contextPath}/users/register" method="post">
 						<div class="mb-3">
 							<label for="firstName" class="form-label">First Name:</label>
