@@ -16,8 +16,15 @@ import java.util.ArrayList;
 
 @WebServlet("/reviews/*")
 public class ReviewController extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	
+	// Constants for review paths
+	private static final String REVIEWS = "/reviews";
 	private static final String LIST = "/list";
 	private static final String CONFIGURE = "/configure";
+	private static final String REVIEW = "/review";
+	private static final String UPDATE = "/update";
+	private static final String REMOVE = "/remove";
 	
 	private ReviewDAO reviewDAO;
 	private MovieDAO movieDAO;
@@ -32,7 +39,7 @@ public class ReviewController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String action = request.getPathInfo();
-        String url = "/WEB-INF/views/reviews" + action + ".jsp";
+        String url = "/WEB-INF/views" + REVIEWS + action + ".jsp";
 		try {
 			switch(action) {
         	case LIST:
@@ -42,6 +49,7 @@ public class ReviewController extends HttpServlet {
         		getReview(request, response);
         		break;
         	}
+			// Forward the request to the corresponding JSP page
         	request.getRequestDispatcher(url).forward(request, response);
 		} catch (SQLException e) {
 			throw new ServletException(e);
@@ -54,8 +62,11 @@ public class ReviewController extends HttpServlet {
 	private void listReviews(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, ServletException, IOException, ClassNotFoundException {
 		User user = (User) request.getSession().getAttribute("user");
+		
 		ArrayList<Review> reviews = reviewDAO.getReviewsFromUser(user.getUserID());
 		request.setAttribute("reviews", reviews);
+		
+		// Get movies and map with the same index
 		Movie[] movies = new Movie[reviews.size()];
     	for (int i = 0; i < movies.length; ++i) {
     		movies[i] = movieDAO.getMovie(reviews.get(i).getMovieID());
@@ -78,13 +89,13 @@ public class ReviewController extends HttpServlet {
 		String action = request.getPathInfo();
 		try {
 			switch (action) {
-        	case "/review":
+        	case REVIEW:
         		addReview(request, response);
         		break;
-        	case "/update":
+        	case UPDATE:
         		updateReview(request, response);
         		break;
-        	case "/remove":
+        	case REMOVE:
         		deleteReview(request, response);
         		break;
         	}
@@ -109,8 +120,8 @@ public class ReviewController extends HttpServlet {
 		newReview.setComment("Type your comment here...");
 
 		long primaryKey = reviewDAO.addReview(newReview);
-		// request.setAttribute("review", newReview);
-		response.sendRedirect(request.getContextPath() + "/reviews/configure?id=" + primaryKey);
+		// Send GET request to specified URL
+		response.sendRedirect(request.getContextPath() + REVIEWS + CONFIGURE + "?id=" + primaryKey);
 	}
 
 	private void updateReview(HttpServletRequest request, HttpServletResponse response)
@@ -124,13 +135,13 @@ public class ReviewController extends HttpServlet {
 		review.setComment(comment);
 
 		reviewDAO.updateReview(review);
-		response.sendRedirect(request.getContextPath() + "/reviews/list");
+		response.sendRedirect(request.getContextPath() + REVIEWS + LIST);
 	}
 
 	private void deleteReview(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, IOException, ClassNotFoundException {
 		int reviewID = Integer.parseInt(request.getParameter("reviewID"));
 		reviewDAO.deleteReview(reviewID);
-		response.sendRedirect(request.getContextPath() + "/reviews/list");
+		response.sendRedirect(request.getContextPath() + REVIEWS + LIST);
 	}
 }

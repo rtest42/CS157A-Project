@@ -1,5 +1,9 @@
 package edu.sjsu.cs157a.model;
 
+/**
+ * Represents a Review in the movie database system.
+ * A Review includes a rating and a comment left by a user for a specific movie.
+ */
 public class Review {
 	private int reviewId;
 	private int userId;
@@ -11,6 +15,15 @@ public class Review {
 		
 	}
 	
+	/**
+     * Parameterized constructor for creating a Review object with specific details.
+     *
+     * @param id      The unique review ID
+     * @param userId  The ID of the user who wrote the review
+     * @param movieId The ID of the movie being reviewed
+     * @param rating  The rating given by the user
+     * @param comment The comment left by the user
+     */
 	public Review(int id, int userId, int movieId, double rating, String comment) {
 		this.setReviewID(id);
 		this.setUserID(userId);
@@ -18,7 +31,8 @@ public class Review {
 		this.setRating(rating);
 		this.setComment(comment);
 	}
-
+	
+	// Getter and setter methods for attributes
 	public int getReviewID() {
 		return reviewId;
 	}

@@ -1,5 +1,9 @@
 package edu.sjsu.cs157a.model;
 
+/**
+ * Represents a Movie in the movie database system.
+ * A Movie object includes details such as title, director, genre, release year, rating, and description.
+ */
 public class Movie {
 	private int movieId;
 	private String title;
@@ -13,6 +17,17 @@ public class Movie {
 		
 	}
 	
+    /**
+     * Parameterized constructor for creating a Movie object with specific details.
+     *
+     * @param id          The unique movie ID
+     * @param title       The title of the movie
+     * @param director    The director of the movie
+     * @param genre       The genre of the movie
+     * @param releaseYear The release year of the movie
+     * @param rating      The average rating of the movie
+     * @param description A brief description of the movie
+     */
 	public Movie(int id, String title, String director, String genre, int releaseYear, double rating, String description) {
 		this.setMovieID(id);
 		this.setTitle(title);
@@ -23,6 +38,7 @@ public class Movie {
 		this.setDescription(description);
 	}
 
+	// Getter and setter methods for attributes
 	public int getMovieID() {
 		return movieId;
 	}

@@ -12,6 +12,9 @@ import java.sql.SQLException;
 
 @WebServlet("/users/*")
 public class UserController extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	
+	// Constants for user paths
 	private static final String USERS = "/users";
 	private static final String LOGIN = "/login";
 	private static final String LOGOUT = "/logout";
@@ -37,6 +40,7 @@ public class UserController extends HttpServlet {
 		case REGISTER:
 		case PROFILE:
 		case EDIT:
+			// Forward the request to the corresponding JSP page
 			String url = "/WEB-INF/views" + USERS + action + ".jsp";
 			request.getRequestDispatcher(url).forward(request, response);
 			break;
@@ -87,13 +91,16 @@ public class UserController extends HttpServlet {
 		String phone = request.getParameter("phone");
 		String password = request.getParameter("password");
 		
+		// Check if user already exists by email
 		User user = userDAO.getUser(email);
 		if (user != null) {
 			System.out.println("Email already exists!");
+			// Send GET request to specified URL
 			response.sendRedirect(request.getContextPath() + USERS + REGISTER + "?status=error");
 			return;
 		}
 
+		// Create a new user and add to the database
 		User newUser = new User();
 		newUser.setFirstName(firstName);
 		newUser.setLastName(lastName);
@@ -109,7 +116,8 @@ public class UserController extends HttpServlet {
 	private void loginUser(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ClassNotFoundException {
 		String email = request.getParameter("email");
 		String password = request.getParameter("password");
-		
+
+		// Check for valid email and password
 		User user = userDAO.getUser(email);
 		if (user != null && user.getPassword().equals(password)) {
 			request.getSession().setAttribute("user", user);
@@ -128,7 +136,8 @@ public class UserController extends HttpServlet {
 		String email = request.getParameter("email");
 		String phone = request.getParameter("phone");
 		String password = request.getParameter("password");
-
+		
+		// Get the user from session and update their details
 		User user = (User) request.getSession().getAttribute("user");
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
@@ -143,6 +152,7 @@ public class UserController extends HttpServlet {
 	
 	private void logoutUser(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, IOException, ClassNotFoundException {
+		// Clear session and redirect to login page
 		request.getSession().invalidate();
 		System.out.println("Logged out user!");
 		response.sendRedirect(request.getContextPath() + USERS + LOGIN + "?status=logout");
@@ -150,6 +160,7 @@ public class UserController extends HttpServlet {
 
 	private void deleteUser(HttpServletRequest request, HttpServletResponse response)
 			throws SQLException, IOException, ClassNotFoundException {
+		// Clear session, delete user, and redirect to login page
 		User user = (User) request.getSession().getAttribute("user");
 		userDAO.deleteUser(user.getUserID());
 		request.getSession().invalidate();

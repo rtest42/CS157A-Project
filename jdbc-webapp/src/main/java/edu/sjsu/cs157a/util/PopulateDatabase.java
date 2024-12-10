@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class PopulateDatabase {
-	private static final String FILE = "movies.csv";
+	private static final String FILE = "movies.csv"; // Edit CSV file here
 	
 	public static void main(String[] args) {
 		String sql = "INSERT INTO Movies (Title, Director, Genre, ReleaseYear, Rating, Description) VALUES (?, ?, ?, ?, ?, ?)";

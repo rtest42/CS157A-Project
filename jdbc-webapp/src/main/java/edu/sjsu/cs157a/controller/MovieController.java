@@ -17,6 +17,10 @@ import java.util.ArrayList;
 
 @WebServlet("/movies/*")
 public class MovieController extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	
+	// Constants for movie paths
+	private static final String MOVIES = "/movies";
 	private static final String DASHBOARD = "/dashboard";
 	private static final String DETAILS = "/details";
 	
@@ -35,7 +39,7 @@ public class MovieController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String action = request.getPathInfo();
-		String url = "/WEB-INF/views/movies" + action + ".jsp";
+		String url = "/WEB-INF/views" + MOVIES + action + ".jsp";
 		try {
 			switch (action) {
 			case DASHBOARD:
@@ -45,6 +49,7 @@ public class MovieController extends HttpServlet {
 				getMovie(request, response);
 				break;
 			}
+			// Forward the request to the corresponding JSP page
 			request.getRequestDispatcher(url).forward(request, response);
 		} catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
@@ -66,6 +71,7 @@ public class MovieController extends HttpServlet {
 		Movie movie = movieDAO.getMovie(movieID);
 		request.setAttribute("movie", movie);
 		
+		// Default value if user is a guest
 		boolean canRent = false;
 		boolean canReview = false;
 		if (user != null) {
@@ -78,6 +84,7 @@ public class MovieController extends HttpServlet {
 		ArrayList<Review> reviews = reviewDAO.getReviewsByMovie(movieID);
 		request.setAttribute("reviews", reviews);
 		
+		// Get users and map with the same index
 		User[] users = new User[reviews.size()];
 		for (int i = 0; i < users.length; ++i) {
 			users[i] = userDAO.getUser(reviews.get(i).getUserID());

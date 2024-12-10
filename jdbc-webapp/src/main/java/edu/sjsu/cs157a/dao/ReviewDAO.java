@@ -11,23 +11,33 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Data Access Object (DAO) class for managing database operations related to the Review model.
+ */
 public class ReviewDAO {
-	public ReviewDAO() {
-		
-	}
-
+	
+	/**
+     * Adds a new review to the database and returns the generated primary key.
+     *
+     * @param review The Review object containing data to be inserted.
+     * @return The generated primary key (ReviewID) of the newly added review.
+     * @throws ClassNotFoundException If the JDBC driver is not found.
+     * @throws SQLException If a database access error occurs.
+     */
 	public long addReview(Review review) throws ClassNotFoundException, SQLException {
 		String sql = "INSERT INTO Reviews (UserID, MovieID, Rating, Comment) VALUES (?, ?, ?, ?)";
 		
 		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
 		
+		// Set parameters for query
 		statement.setInt(1, review.getUserID());
 		statement.setInt(2, review.getMovieID());
 		statement.setDouble(3, review.getRating());
 		statement.setString(4, review.getComment());
 		statement.executeUpdate();
-		
+
+		// Retrieve generated primary key
 		Statement s = connection.createStatement();
 		ResultSet rs = s.executeQuery("SELECT LAST_INSERT_ID()");
 		if (rs.next()) {
@@ -35,12 +45,20 @@ public class ReviewDAO {
 			return primaryKey;
 		}
 		
-		return 0;
+		return 0; // Default value; should not return this
 	}
 
+	/**
+     * Retrieves a specific review from the database by its ID.
+     *
+     * @param id The ID of the review to retrieve.
+     * @return A Review object representing the retrieved review, or null if not found.
+     * @throws ClassNotFoundException If the JDBC driver is not found.
+     * @throws SQLException If a database access error occurs.
+     */
 	public Review getReview(int id) throws ClassNotFoundException, SQLException {
 		String sql = "SELECT * FROM Reviews WHERE ReviewID = ?";
-		Review review = null;
+		Review review = null; // Default value to return if review is not found
 
 		Connection connection = JDBCUtil.getConnection();
 		PreparedStatement statement = connection.prepareStatement(sql);
@@ -48,7 +66,8 @@ public class ReviewDAO {
 		statement.setInt(1, id);
 		
 		ResultSet resultSet = statement.executeQuery();
-
+		
+		// Map result set to Review object
 		if (resultSet.next()) {
 			review = new Review();
 			review.setReviewID(resultSet.getInt("ReviewID"));
@@ -61,28 +80,14 @@ public class ReviewDAO {
 		return review;
 	}
 	
-	public ArrayList<Review> getAllReviews() throws ClassNotFoundException, SQLException {
-		String sql = "SELECT * FROM Reviews";
-		ArrayList<Review> reviews = new ArrayList<Review>();
-
-		Connection connection = JDBCUtil.getConnection();
-		PreparedStatement statement = connection.prepareStatement(sql);
-		
-		ResultSet result = statement.executeQuery();
-
-		while (result.next()) {
-			Review review = new Review();
-			review.setReviewID(result.getInt("ReviewID"));
-			review.setUserID(result.getInt("UserID"));
-			review.setMovieID(result.getInt("MovieID"));
-			review.setRating(result.getDouble("Rating"));
-			review.setComment(result.getString("Comment"));
-			reviews.add(review);
-		}
-
-		return reviews;
-	}
-
+	/**
+     * Retrieves all reviews for a specific movie from the database.
+     *
+     * @param movieID The ID of the movie whose reviews are to be retrieved.
+     * @return An ArrayList of Review objects representing the reviews.
+     * @throws ClassNotFoundException If the JDBC driver is not found.
+     * @throws SQLException If a database access error occurs.
+     */
 	public ArrayList<Review> getReviewsByMovie(int movieID) throws ClassNotFoundException, SQLException {
 		String sql = "SELECT * FROM Reviews WHERE MovieID = ?";
 		ArrayList<Review> reviews = new ArrayList<Review>();
@@ -106,7 +111,15 @@ public class ReviewDAO {
 
 		return reviews;
 	}
-
+	
+	/**
+     * Retrieves all reviews from a specific user from the database.
+     *
+     * @param userID The ID of the user whose reviews are to be retrieved.
+     * @return An ArrayList of Review objects representing the reviews.
+     * @throws ClassNotFoundException If the JDBC driver is not found.
+     * @throws SQLException If a database access error occurs.
+     */
 	public ArrayList<Review> getReviewsFromUser(int userID) throws ClassNotFoundException, SQLException {
 		String sql = "SELECT * FROM Reviews WHERE UserID = ?";
 		ArrayList<Review> reviews = new ArrayList<Review>();
@@ -130,7 +143,14 @@ public class ReviewDAO {
 
 		return reviews;
 	}
-
+	
+	/**
+     * Updates an existing review in the database.
+     *
+     * @param review The Review object containing updated data.
+     * @throws ClassNotFoundException If the JDBC driver is not found.
+     * @throws SQLException If a database access error occurs.
+     */
 	public void updateReview(Review review) throws ClassNotFoundException, SQLException {
 		String sql = "UPDATE Reviews SET Rating = ?, Comment = ? WHERE ReviewID = ?";
 		
@@ -144,6 +164,13 @@ public class ReviewDAO {
 
 	}
 
+	/**
+     * Deletes a specific review from the database by its ID.
+     *
+     * @param id The ID of the review to delete.
+     * @throws ClassNotFoundException If the JDBC driver is not found.
+     * @throws SQLException If a database access error occurs.
+     */
 	public void deleteReview(int id) throws ClassNotFoundException, SQLException {
 		String sql = "DELETE FROM Reviews WHERE ReviewID = ?";
 		

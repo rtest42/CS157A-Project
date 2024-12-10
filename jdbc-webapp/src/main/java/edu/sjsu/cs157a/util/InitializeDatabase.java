@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class InitializeDatabase {
-    private static final String FILE = "schema.sql";
+    private static final String FILE = "schema.sql"; // Edit SQL file here
 
     public static void main(String[] args) {
         try (Connection connection = JDBCUtil.getConnection("jdbc:mysql://localhost:3306/")) {
